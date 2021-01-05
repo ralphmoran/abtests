@@ -79,40 +79,71 @@ final class SplitTestHandler
      */
     private function loadTest( $test )
     {
-        if( file_exists( $test . '.php' ) ){
+        //
+        //  Load class file
+        //
+        $test_name              = $this->loadFile( $test . '.php' );
+        $this->LOADED_TESTS[]   = $test_name;
+
+        //
+        //  Instantiate Test class
+        //
+        $this->current_test = new $test_name( $this->payload );
+
+        return $this;
+    }
+
+
+    /**
+     * Autoloader: This autoloader prevents an exploit attack.
+     * 
+     * PHP include & require exposes the current context to the included file.
+     * 
+     * Ref: https://github.com/Respect/Loader/issues/6
+     *      https://owasp.org/www-community/vulnerabilities/PHP_Object_Injection
+     *
+     * @param   string  $file
+     * @return  mixed
+     */
+    private function loadFile( $file )
+    {
+        $test_name  = explode( '/', $file );
+        $test_name  = end( $test_name );
+        $test_name  = rtrim( $test_name, '.php' );
+
+        if( !isset( $_ENV['ABTests'][$test_name] ) ){
 
             //
-            //  Load class file
+            //  In order to avoid object injection exploits
             //
-            @require_once( $test . '.php' );
+            call_user_func(function () use ( $file ) {
+                ob_start();
 
-            $test_name = explode( '/', $test );
-            $test_name = end( $test_name );
+                if( !file_exists( $file ) )
+                    throw new Exception('File: ' . $file . '.php does not exist.');
+                    
+                @require $file;
+                
+                ob_end_clean();
+            });
 
 
+            //
+            //  Confirm if the class has been loaded from the $file
+            //
             if( !class_exists( $test_name ) ){
-
                 $this->error_log[]  = [
                     'test'      => $test_name,
                     'message'   => 'Test: ' . $test_name . ' does not exist.',
                 ];
 
                 throw new Exception('Test: ' . $test_name . ' does not exist.');
-
             }
 
-            $this->LOADED_TESTS[]   = $test_name;
-
-            //
-            //  Instantiate Test class
-            //
-            $this->current_test = new $test_name( $this->payload );
-
-            return $this;
-
+            $_ENV['ABTests'][$test_name] = 1;
         }
 
-        throw new Exception('File: ' . $test . '.php does not exist.');
+        return $test_name;
     }
 
 
