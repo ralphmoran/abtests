@@ -140,7 +140,7 @@ abstract class AbstractTest
 
 
     /**
-     * This is actual method that runs/returns the control value and places it into
+     * This is the actual method that runs/returns the control value and places it into
      * the global payload.
      *
      * @return void
