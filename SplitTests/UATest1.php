@@ -32,7 +32,7 @@ class UATest1 extends AbstractTest
                         ->equalTo( 'rtest' )        # ($username == 'rtest') AND (strpos($username, 'tesw') !== false)
                         ->has( 'tesw' ),            #
                 ])
-            ->dispatch();           # dispatch() takes care of the 
+            ->dispatch();           # This is the actual method that runs/returns the control value and places it into the global payload.
     }
 
 }
