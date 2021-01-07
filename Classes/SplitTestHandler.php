@@ -79,16 +79,10 @@ final class SplitTestHandler
      */
     private function loadTest( $test )
     {
-        //
-        //  Load class file
-        //
         $test_name              = $this->loadFile( $test . '.php' );
         $this->LOADED_TESTS[]   = $test_name;
 
-        //
-        //  Instantiate Test class
-        //
-        $this->current_test = new $test_name( $this->payload );
+        $this->current_test     = new $test_name( $this->payload );
 
         return $this;
     }
@@ -113,9 +107,7 @@ final class SplitTestHandler
 
         if( !isset( $_ENV['ABTests'][$test_name] ) ){
 
-            //
-            //  In order to avoid object injection exploits
-            //
+            # In order to avoid object injection exploits
             call_user_func(function () use ( $file ) {
                 ob_start();
 
@@ -127,10 +119,7 @@ final class SplitTestHandler
                 ob_end_clean();
             });
 
-
-            //
-            //  Confirm if the class has been loaded from the $file
-            //
+            # Confirm if the class has been loaded from the $file
             if( !class_exists( $test_name ) ){
                 $this->error_log[]  = [
                     'test'      => $test_name,
