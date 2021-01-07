@@ -77,8 +77,12 @@ abstract class AbstractTest
      */
     protected function groups( array $groups )
     {
-        if( count($groups) < 2  )
-            $this->dd( "2 groups are required to perform this test. " . count($groups) . " group(s) were provided." );
+        if( count($groups) < 2  ){
+            $this->dd( "At least 2 groups are required to perform this test. " . count($groups) . " group was provided." );
+            $this->run_test = false;
+            
+            return $this;
+        }
 
         $this->group_sample = $this->getSample();
 
@@ -247,16 +251,14 @@ abstract class AbstractTest
 
 
     /**
-     * Outputs a message and exits the application.
+     * Outputs a message and/or exits the application.
+     * Add Log activity or any other action before exiting.
      *
      * @param string $msg
      * @return void
      */
     protected function dd( $msg = '' )
     {
-        //
-        //  Add Log activity or any other action before exiting.
-        //
         print_r( "\t" . $msg . "\n" );
     }
 
