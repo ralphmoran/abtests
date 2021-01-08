@@ -56,6 +56,11 @@ abstract class AbstractTest
 
     /**
      * Sets the control variable name. This is not required.
+     * If there is no control assigned, a new default control name will be added like:
+     * 
+     * ```
+     * $this->control = get_called_class() . '_control';
+     * ```
      *
      * @param string $control
      * @return AbstractTest
@@ -151,9 +156,13 @@ abstract class AbstractTest
             - It needs to walk all the payload indexes.
         */
         if( $this->run_test ){
+
+            $this->control = ( !empty($this->control) ) ? $this->control : get_called_class() . '_control';
+
             $this->payload[ $this->control ] = $this->control_value;
 
             $this->dd( "Correctly dispatched " . get_called_class() . ", group sample " . $this->group_sample 
+                        . ", control: '" . $this->control . "', "
                         . ", control value: '" . $this->control_value . "'. "
                         . "Global sample was " . $this->sample );
         }
