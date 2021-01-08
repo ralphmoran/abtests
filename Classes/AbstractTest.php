@@ -161,9 +161,9 @@ abstract class AbstractTest
 
             $this->payload[ $this->control ] = $this->control_value;
 
-            $this->dd( "Correctly dispatched " . get_called_class() . ", group sample " . $this->group_sample 
+            $this->dd( "Correctly dispatched " . get_called_class() . ", group sample: " . $this->group_sample 
                         . ", control: '" . $this->control . "', "
-                        . ", control value: '" . $this->control_value . "'. "
+                        . "control value: '" . $this->control_value . "'. "
                         . "Global sample was " . $this->sample );
         }
     }
