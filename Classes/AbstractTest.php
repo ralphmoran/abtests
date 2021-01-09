@@ -23,6 +23,11 @@ abstract class AbstractTest
      */
     public function __construct( $payload = [] )
     {
+        if( !$this->active ){
+            $this->dd( "Test: {" . get_called_class() . "} is currently deactived." );
+            $this->run_test = false;
+        }
+
         $this->payload = $payload;
     }
 
