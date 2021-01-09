@@ -1,8 +1,5 @@
 <?php
 
-use Traits\Chainable;
-
-
 /**
  * This class is the general handler, it takes care of each test and runs them.
  * 
@@ -10,8 +7,6 @@ use Traits\Chainable;
  */
 final class SplitTestHandler
 {
-    use Chainable;
-
     private $payload        = [];
     private $error_log      = [];
     private $LOADED_TESTS   = [];
@@ -24,9 +19,9 @@ final class SplitTestHandler
      * @param array $payload
      * @return SplitTestHandler
      */
-    public function payload_( array $payload = [] )
+    public function payload( $payload = [] )
     {
-        $this->payload = ( empty($paload) && !empty($GLOBALS['DATA']) ) ? $GLOBALS['DATA'] : $payload;
+        $this->setPayload($payload);
 
         return $this;
     }
@@ -38,18 +33,17 @@ final class SplitTestHandler
      * @param   array   $TESTS
      * @return  SplitTestHandler
      */
-    public function handle_( $TESTS = [] )
+    public function handle( $TESTS = [] )
     {
-        $this->payload = ( empty($this->payload) && !empty($GLOBALS['DATA']) ) ? $GLOBALS['DATA'] : $this->payload;
-
-        if( is_array( $TESTS ) ){
+        if( !empty($this->payload) && is_array( $TESTS ) && !empty($TESTS) ){
             foreach( $TESTS as $test ){
                 try{
                     $this->loadTest( $test )
                             ->perform();
                 } catch (Exception $e){
                     $this->error_log[]  = [
-                        'test'      => $test,
+                        'error'     => 'TEST{' . $test . '}',
+                        'method'    => __METHOD__,
                         'message'   => $e->getMessage(),
                     ];
                 }
@@ -57,6 +51,71 @@ final class SplitTestHandler
         }
 
         return $this;
+    }
+
+
+    /**
+     * Retrieves a specific property|log.
+     *
+     * @param   string  $meta
+     * @return  void
+     */
+    public function get( $meta = '', $verbose = false )
+    {
+        switch( $meta ){
+            case 'log':
+            case 'l':
+            case 'error':
+            case 'e':
+                if ($verbose)
+                    print_r($this->error_log);
+                else 
+                    return $this->error_log;
+            break;
+            case 'loaded':
+                if ($verbose)
+                    print_r($this->LOADED_TESTS);
+                else
+                    return $this->LOADED_TESTS;
+            break;
+
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Assigns $payload to property $this->payload and checks
+     * is this property is not empty.
+     *
+     * @param array $payload
+     * @return void
+     */
+    private function setPayload( $payload = [] )
+    {
+        $this->payload = $payload;
+        $this->checkPayload();
+    }
+
+
+    /**
+     * Checks if payload is empty.
+     *
+     * @return void
+     */
+    private function checkPayload() {
+        if( empty($this->payload) ){
+            try{
+                throw new Exception('There are no values to work on: payload is empty.');
+            } catch (Exception $e){
+                $this->error_log[]  = [
+                    'error'     => 'PAYLOAD',
+                    'method'     => __METHOD__,
+                    'message'   => $e->getMessage(),
+                ];
+            }
+        }
     }
 
 
@@ -135,37 +194,4 @@ final class SplitTestHandler
         return $test_name;
     }
 
-
-    /**
-     * Retrieves a specific property|log.
-     *
-     * @param   string  $meta
-     * @return  void
-     */
-    public function get_( $meta = '', $verbose = false )
-    {
-        switch( $meta ){
-            case 'log':
-            case 'l':
-            case 'error':
-            case 'e':
-            case 'messages':
-            case 'm':
-                if ($verbose)
-                    print_r($this->error_log);
-                else 
-                    return $this->error_log;
-            break;
-            case 'loaded':
-                if ($verbose)
-                    print_r($this->LOADED_TESTS);
-                else
-                    return $this->LOADED_TESTS;
-            break;
-
-        }
-
-        return $this;
-    }
-    
 }

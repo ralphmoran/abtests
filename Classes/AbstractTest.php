@@ -15,6 +15,7 @@ abstract class AbstractTest
     protected $rule_statements      = [];
     protected $statement_pointer    = 0;
     protected $run_test             = true;
+    protected $active               = true;
 
 
     /**
