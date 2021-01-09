@@ -5,6 +5,8 @@ use Classes\AbstractTest;
 class FETest1 extends AbstractTest
 {
 
+    protected $active = false;
+
     /**
      * Dispatches/performs this test.
      *
