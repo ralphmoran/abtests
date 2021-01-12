@@ -5,7 +5,7 @@ use Classes\AbstractTest;
 class FETest1 extends AbstractTest
 {
 
-    protected $active = false;
+    protected $active = false; # By default this property is true from AbstractTest class.
 
     /**
      * Dispatches/performs this test.

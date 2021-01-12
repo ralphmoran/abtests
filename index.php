@@ -1,6 +1,7 @@
 <?php
 
 # Autoload classes and traits
+include( 'Traits/logger.php' );
 include( 'Classes/AbstractTest.php' );
 include( 'Classes/SplitTestHandler.php' );
 
@@ -14,8 +15,10 @@ $ABTestHandler->payload([
                     ])
                     ->handle([
                         'SplitTests/UATest1',
-                        'SplitTests/BillingTests/BillingTest1',
+                        'SplitTests/SEOTests/SEOTest1',
                         'SplitTests/FETests/FETest1',
-                    ]);
+                        'SplitTests/BillingTests/BillingTest1',
+                    ])
+                    ->get(true);
 
 exit;

@@ -2,12 +2,8 @@
 
 use Classes\AbstractTest;
 
-class BillingTest1 extends AbstractTest
+class SEOTest1 extends AbstractTest
 {
-    protected $incompatible = [
-        'SplitTests/SEOTests/SEOTest1',
-        'SplitTests/FETests/FETest1',
-    ];
 
     /**
      * Dispatches/performs this test.
@@ -16,16 +12,15 @@ class BillingTest1 extends AbstractTest
      */
     public function run()
     {
-        $this->sample(90)
-            ->control('UDF07')
+        $this->sample(30)
+            ->control('UDF10')
             ->groups([
-                'billingA'  => 25,
-                'billingB'  => 75,
-                'billingC'  => 50,
-                'billingD'  => 100,
+                'seoA'  => 10,
+                'seoB'  => 20,
+                'seoC'  => 30,
             ])
             ->rules(
-                'billingTest',
+                'seoTest',
                 [
                     $this->dataFrom( 'email' )
                         ->has( '_hbp_' )
