@@ -19,12 +19,14 @@ abstract class AbstractTest
 
 
     /**
+     * Contrustor adds the main payload and validates if current test is active.
+     * 
      * @param array $payload
      */
     public function __construct( $payload = [] )
     {
         if( !$this->active ){
-            $this->dd( "Test: {" . get_called_class() . "} is currently deactived." );
+            $this->log( "Test: {" . get_called_class() . "} is currently deactived." );
             $this->run_test = false;
         }
 
@@ -49,11 +51,13 @@ abstract class AbstractTest
      */
     protected function sample( $sample = 100 )
     {
-        $this->sample   = $this->getSample();
-        
-        if( $this->sample > $sample ){
-            $this->run_test = false;
-            $this->dd( "No test for " . get_called_class() . ". Global sample was " . $this->sample . "%" );
+        if( $this->active ){
+            $this->sample   = $this->getSample();
+            
+            if( $this->sample > $sample ){
+                $this->run_test = false;
+                $this->log( "No test for " . get_called_class() . ". Global sample was " . $this->sample . "%" );
+            }
         }
 
         return $this;
@@ -89,7 +93,7 @@ abstract class AbstractTest
     protected function groups( array $groups )
     {
         if( count($groups) < 2  ){
-            $this->dd( "At least 2 groups are required to perform this test. " . count($groups) . " group was provided." );
+            $this->log( "At least 2 groups are required to perform this test. " . count($groups) . " group was provided." );
             $this->run_test = false;
             
             return $this;
@@ -167,7 +171,7 @@ abstract class AbstractTest
 
             $this->payload[ $this->control ] = $this->control_value;
 
-            $this->dd( "Correctly dispatched " . get_called_class() . ", group sample: " . $this->group_sample 
+            $this->log( "Correctly dispatched " . get_called_class() . ", group sample: " . $this->group_sample 
                         . ", control: '" . $this->control . "', "
                         . "control value: '" . $this->control_value . "'. "
                         . "Global sample was " . $this->sample );
@@ -194,7 +198,7 @@ abstract class AbstractTest
             return $this;
         }
 
-        $this->dd( "Index '" . $index . "' does not exist in the payload." );
+        $this->log( "Index '" . $index . "' does not exist in the payload." );
     }
 
 
@@ -272,9 +276,9 @@ abstract class AbstractTest
      * @param string $msg
      * @return void
      */
-    protected function dd( $msg = '' )
+    protected function log( $msg = '' )
     {
-        print_r( "\t" . $msg . "\n" );
+        throw new \Exception( $msg );
     }
 
 }

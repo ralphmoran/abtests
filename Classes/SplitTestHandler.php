@@ -1,5 +1,7 @@
 <?php
 
+use Traits\Logger;
+
 /**
  * This class is the general handler, it takes care of each test and runs them.
  * 
@@ -7,8 +9,10 @@
  */
 final class SplitTestHandler
 {
+
+    use Logger;
+
     private $payload        = [];
-    private $error_log      = [];
     private $LOADED_TESTS   = [];
     private $current_test;
 
@@ -30,55 +34,24 @@ final class SplitTestHandler
     /**
      * Performs all tests from $TESTS array in a sequential order.
      *
-     * @param   array   $TESTS
-     * @return  SplitTestHandler
+     * @param array $TESTS
+     * @return SplitTestHandler
      */
     public function handle( $TESTS = [] )
     {
-        if( !empty($this->payload) && is_array( $TESTS ) && !empty($TESTS) ){
+        if( !empty($this->payload) && is_array($TESTS) && !empty($TESTS) ){
             foreach( $TESTS as $test ){
                 try{
                     $this->loadTest( $test )
                             ->perform();
                 } catch (Exception $e){
-                    $this->error_log[]  = [
-                        'error'     => 'TEST{' . $test . '}',
+                    $this::$error_log[]  = [
+                        'type'     => 'TEST',
                         'method'    => __METHOD__,
                         'message'   => $e->getMessage(),
                     ];
                 }
             }
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Retrieves a specific property|log.
-     *
-     * @param   string  $meta
-     * @return  void
-     */
-    public function get( $meta = '', $verbose = false )
-    {
-        switch( $meta ){
-            case 'log':
-            case 'l':
-            case 'error':
-            case 'e':
-                if ($verbose)
-                    print_r($this->error_log);
-                else 
-                    return $this->error_log;
-            break;
-            case 'loaded':
-                if ($verbose)
-                    print_r($this->LOADED_TESTS);
-                else
-                    return $this->LOADED_TESTS;
-            break;
-
         }
 
         return $this;
@@ -94,27 +67,19 @@ final class SplitTestHandler
      */
     private function setPayload( $payload = [] )
     {
-        $this->payload = $payload;
-        $this->checkPayload();
-    }
-
-
-    /**
-     * Checks if payload is empty.
-     *
-     * @return void
-     */
-    private function checkPayload() {
-        if( empty($this->payload) ){
-            try{
+        try{
+            if( empty($payload) ){
                 throw new Exception('There are no values to work on: payload is empty.');
-            } catch (Exception $e){
-                $this->error_log[]  = [
-                    'error'     => 'PAYLOAD',
-                    'method'     => __METHOD__,
-                    'message'   => $e->getMessage(),
-                ];
+                exit;
             }
+
+            $this->payload = $payload;
+        } catch (Exception $e){
+            $this::$error_log[]  = [
+                'type'     => 'PAYLOAD',
+                'method'     => __METHOD__,
+                'message'   => $e->getMessage(),
+            ];
         }
     }
 
@@ -133,8 +98,8 @@ final class SplitTestHandler
     /**
      * Loads a test class from a file path.
      *
-     * @param   string  $test
-     * @return  mixed
+     * @param string $test
+     * @return mixed
      */
     private function loadTest( $test )
     {
@@ -155,24 +120,27 @@ final class SplitTestHandler
      * Ref: https://github.com/Respect/Loader/issues/6
      *      https://owasp.org/www-community/vulnerabilities/PHP_Object_Injection
      *
-     * @param   string  $file
-     * @return  mixed
+     * @param string $file
+     * @return mixed
      */
     private function loadFile( $file )
     {
-        $test_name  = explode( '/', $file );
-        $test_name  = end( $test_name );
-        $test_name  = rtrim( $test_name, '.php' );
+        $test_name      = explode( '/', $file );
+        $test_name      = end( $test_name );
+        $test_name      = rtrim( $test_name, '.php' );
+        $load_test_name = true;
 
         if( !isset( $_ENV['ABTests'][$test_name] ) ){
 
             # In order to avoid object injection exploits
-            call_user_func(function () use ( $file ) {
+            call_user_func(function () use ( $file, &$load_test_name ) {
                 ob_start();
 
-                if( !file_exists( $file ) )
+                if( !file_exists( $file ) ){
+                    $load_test_name = false;
                     throw new Exception('File: ' . $file . '.php does not exist.');
-                    
+                }
+
                 @require $file;
                 
                 ob_end_clean();
@@ -180,15 +148,12 @@ final class SplitTestHandler
 
             # Confirm if the class has been loaded from the $file
             if( !class_exists( $test_name ) ){
-                $this->error_log[]  = [
-                    'test'      => $test_name,
-                    'message'   => 'Test: ' . $test_name . ' does not exist.',
-                ];
-
+                $load_test_name = false;
                 throw new Exception('Test: ' . $test_name . ' does not exist.');
             }
 
-            $_ENV['ABTests'][$test_name] = 1;
+            if( $load_test_name )
+                $_ENV['ABTests'][$test_name] = 1;
         }
 
         return $test_name;
