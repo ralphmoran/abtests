@@ -27,7 +27,7 @@ abstract class AbstractTest
     public function __construct( $payload = [] )
     {
         if( !$this->active ){
-            $this->log( "Test: {" . get_called_class() . "} is currently deactived." );
+            $this->log( get_called_class() . " test is currently deactived." );
             $this->run_test = false;
         }
 
@@ -177,6 +177,8 @@ abstract class AbstractTest
                         . "control value: '" . $this->control_value . "'. "
                         . "Global sample was " . $this->sample );
         }
+
+        return $this->run_test;
     }
 
 

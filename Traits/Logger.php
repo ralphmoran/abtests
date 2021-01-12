@@ -4,7 +4,7 @@ namespace Traits;
 
 trait Logger {
 
-    public static $error_log = [];
+    public static $log = [];
 
     /**
      * Retrieves a specific property|log.
@@ -15,9 +15,9 @@ trait Logger {
     public function get( $verbose = false )
     {
         if ($verbose)
-            print_r(static::$error_log);
+            print_r(static::$log);
         else 
-            return static::$error_log;
+            return static::$log;
     }
 
 }

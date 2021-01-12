@@ -9,8 +9,10 @@ use Traits\Logger;
  */
 final class SplitTestHandler
 {
-
     use Logger;
+
+    const _PAYLOAD_ERROR_MSG_   = 'There are no values to work on: payload is empty.';
+    const _TEST_ERROR_MSG_      = 'There have not set any test.';
 
     private $payload        = [];
     private $loaded_tests   = [];
@@ -32,25 +34,26 @@ final class SplitTestHandler
 
 
     /**
-     * Performs all tests from $TESTS array in a sequential order.
+     * Performs all tests from $TESTS array in sequential order.
      *
      * @param array $TESTS
      * @return SplitTestHandler
      */
-    public function handle( $TESTS = [] )
+    public function handle( $tests = [] )
     {
-        if( !empty($this->payload) && is_array($TESTS) && !empty($TESTS) ){
-            foreach( $TESTS as $test ){
-                try{
-                    $this->loadTest( $test )
-                            ->perform();
-                } catch (Exception $e){
-                    $this::$error_log[]  = [
-                        'type'     => 'TEST',
-                        'method'    => __METHOD__,
-                        'message'   => $e->getMessage(),
-                    ];
-                }
+        $this->ifEmptyThenExit( $this->payload, SplitTestHandler::_PAYLOAD_ERROR_MSG_ );
+        $this->ifEmptyThenExit( $tests, SplitTestHandler::_TEST_ERROR_MSG_ );
+        
+        foreach( $tests as $test ){
+            try{
+                $this->loadTest( $test )
+                        ->perform();
+            } catch (Exception $e){
+                $this::$log['errors'][]  = [
+                    'type'      => 'TEST',
+                    'method'    => __METHOD__,
+                    'message'   => $e->getMessage(),
+                ];
             }
         }
 
@@ -68,16 +71,12 @@ final class SplitTestHandler
     private function setPayload( $payload = [] )
     {
         try{
-            if( empty($payload) ){
-                throw new Exception('There are no values to work on: payload is empty.');
-                exit;
-            }
-
+            $this->ifEmptyThenExit( $payload, SplitTestHandler::_PAYLOAD_ERROR_MSG_ );
             $this->payload = $payload;
         } catch (Exception $e){
-            $this::$error_log[]  = [
-                'type'     => 'PAYLOAD',
-                'method'     => __METHOD__,
+            $this::$log['errors'][]  = [
+                'type'      => 'PAYLOAD',
+                'method'    => __METHOD__,
                 'message'   => $e->getMessage(),
             ];
         }
@@ -104,10 +103,10 @@ final class SplitTestHandler
      */
     private function loadTest( $test, $ext = 'php' )
     {
-        $test_name              = $this->loadFile( $test . '.' . $ext );
-        $this->loaded_tests[]   = $test_name;
+        $test_name = $this->loadFile( $test . '.' . $ext );
 
-        $this->current_test     = new $test_name( $this->payload );
+        if( $test_name !== NULL && is_string( $test_name ) ) 
+            $this->current_test = new $test_name( $this->payload );
 
         return $this;
     }
@@ -126,22 +125,19 @@ final class SplitTestHandler
      */
     private function loadFile( $file )
     {
-        $test_name      = $this->getTestName( $file );
-        $load_test_name = true;
-
-        /* TODO: 
-            1. $_ENV['ABTests'] must contains the actual loaded test classes.
-            2. Return NULL if test class was not loaded.
-         */
-        if( !isset( $_ENV['ABTests'][$test_name] ) ){
+        $test_name = $this->getTestName( $file );
+        
+        if( !in_array( $test_name, $this->loaded_tests ) ){
 
             # In order to avoid object injection exploits
             call_user_func(function () use ( $file, &$load_test_name ) {
                 ob_start();
 
                 if( !file_exists( $file ) ){
-                    $load_test_name = false;
                     throw new Exception('File: ' . $file . '.php does not exist.');
+                    ob_end_clean();
+
+                    return NULL;
                 }
 
                 @require $file;
@@ -151,15 +147,15 @@ final class SplitTestHandler
 
             # Confirm if the class has been loaded from the $file
             if( !class_exists( $test_name ) ){
-                $load_test_name = false;
                 throw new Exception('Test: ' . $test_name . ' does not exist.');
+
+                return NULL;
             }
 
-            if( $load_test_name )
-                $_ENV['ABTests'][$test_name] = 1;
+            $this->loaded_tests[] = $test_name;
         }
 
-        return $test_name;
+        return (string) $test_name;
     }
 
 
@@ -176,6 +172,22 @@ final class SplitTestHandler
         $test_name      = end( $test_name );
 
         return rtrim( $test_name, '.' . $ext );
+    }
+
+
+    /**
+     * Validates if array $data is empty, if so, it trows an exception and exits.
+     *
+     * @param array $data
+     * @param string $dmsg
+     * @return void
+     */
+    private function ifEmptyThenExit( $data = [], $msg = 'Data is empty.' )
+    {
+        if( empty($data) ){
+            throw new Exception($msg);
+            exit;
+        }
     }
 
 }
