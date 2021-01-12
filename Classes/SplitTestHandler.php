@@ -13,7 +13,7 @@ final class SplitTestHandler
     use Logger;
 
     private $payload        = [];
-    private $LOADED_TESTS   = [];
+    private $loaded_tests   = [];
     private $current_test;
 
 
@@ -99,12 +99,13 @@ final class SplitTestHandler
      * Loads a test class from a file path.
      *
      * @param string $test
+     * @param string $ext
      * @return mixed
      */
-    private function loadTest( $test )
+    private function loadTest( $test, $ext = 'php' )
     {
-        $test_name              = $this->loadFile( $test . '.php' );
-        $this->LOADED_TESTS[]   = $test_name;
+        $test_name              = $this->loadFile( $test . '.' . $ext );
+        $this->loaded_tests[]   = $test_name;
 
         $this->current_test     = new $test_name( $this->payload );
 
@@ -125,11 +126,13 @@ final class SplitTestHandler
      */
     private function loadFile( $file )
     {
-        $test_name      = explode( '/', $file );
-        $test_name      = end( $test_name );
-        $test_name      = rtrim( $test_name, '.php' );
+        $test_name      = $this->getTestName( $file );
         $load_test_name = true;
 
+        /* TODO: 
+            1. $_ENV['ABTests'] must contains the actual loaded test classes.
+            2. Return NULL if test class was not loaded.
+         */
         if( !isset( $_ENV['ABTests'][$test_name] ) ){
 
             # In order to avoid object injection exploits
@@ -157,6 +160,22 @@ final class SplitTestHandler
         }
 
         return $test_name;
+    }
+
+
+    /**
+     * Parses a path/file test format and returns the test name.
+     *
+     * @param string $file
+     * @param string $ext
+     * @return string
+     */
+    private function getTestName( $file, $ext = 'php' ) : string
+    {
+        $test_name      = explode( '/', $file );
+        $test_name      = end( $test_name );
+
+        return rtrim( $test_name, '.' . $ext );
     }
 
 }

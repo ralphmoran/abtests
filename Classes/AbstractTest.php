@@ -16,6 +16,7 @@ abstract class AbstractTest
     protected $statement_pointer    = 0;
     protected $run_test             = true;
     protected $active               = true;
+    protected $incompatible         = [];
 
 
     /**
