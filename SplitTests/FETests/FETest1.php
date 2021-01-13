@@ -4,7 +4,6 @@ use Classes\AbstractTest;
 
 class FETest1 extends AbstractTest
 {
-
     protected $active = false; # By default this property is true from AbstractTest class.
 
     /**

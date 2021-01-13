@@ -4,7 +4,6 @@ use Classes\AbstractTest;
 
 class UATest1 extends AbstractTest
 {
-
     /**
      * Dispatches/performs this test.
      *
