@@ -12,11 +12,13 @@ final class SplitTestHandler
     use Logger;
 
     const _PAYLOAD_ERROR_MSG_   = 'There are no values to work on: payload is empty.';
-    const _TEST_ERROR_MSG_      = 'There have not set any test.';
+    const _TEST_ERROR_MSG_      = 'There have not been set any test.';
 
-    private $payload        = [];
-    private $loaded_tests   = [];
+    private $payload            = [];
+    private $loaded_tests       = [];
     private $current_test;
+    private $current_path_test  = '';
+    private $current_file_ext   = 'php';
 
 
     /**
@@ -84,12 +86,20 @@ final class SplitTestHandler
 
 
     /**
-     * This is a wrapper for method run() from each Test instance.
+     * This is a wrapper for method run() from each Test instance, also, it validates
+     * if current test is not compatible with loaded tests.
      *
      * @return  void
      */
     private function perform()
     {
+        if( !empty( array_intersect( $this->current_test->getIncompatibleTests(), $this->loaded_tests ) ) ){
+            throw new Exception('Test incompatibility "' . $this->current_path_test . '" with ' 
+                                . '["' . implode( '", "', $this->current_test->getIncompatibleTests()) . '"]');
+
+            return;
+        }
+
         $this->current_test->run();
     }
 
@@ -103,6 +113,7 @@ final class SplitTestHandler
      */
     private function loadTest( $test, $ext = 'php' )
     {
+        $this->current_file_ext = $ext;
         $test_name = $this->loadFile( $test . '.' . $ext );
 
         if( $test_name !== NULL && is_string( $test_name ) ) 
@@ -130,7 +141,7 @@ final class SplitTestHandler
         if( !in_array( $test_name, $this->loaded_tests ) ){
 
             # In order to avoid object injection exploits
-            call_user_func(function () use ( $file, &$load_test_name ) {
+            call_user_func(function () use ( $file ) {
                 ob_start();
 
                 if( !file_exists( $file ) ){
@@ -152,7 +163,7 @@ final class SplitTestHandler
                 return NULL;
             }
 
-            $this->loaded_tests[] = $test_name;
+            $this->loaded_tests[] = $this->current_path_test = str_replace( '.' . $this->current_file_ext, '', $file );
         }
 
         return (string) $test_name;
