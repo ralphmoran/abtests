@@ -16,7 +16,7 @@ abstract class AbstractTest
     protected $statement_pointer    = 0;
     protected $run_test             = true;
     protected $active               = true;
-    protected $incompatible         = [];
+    protected $incompatibleWith     = [];
 
 
     /**
@@ -41,6 +41,17 @@ abstract class AbstractTest
      * @return void
      */
     abstract public function run();
+
+
+    /**
+     * Returns array of incompatible tests.
+     *
+     * @return array
+     */
+    public function getIncompatibleTests() : array
+    {
+        return $this->incompatibleWith;
+    }
 
 
     /**
