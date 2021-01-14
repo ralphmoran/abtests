@@ -17,8 +17,11 @@ $ABTestHandler->payload([
                         'SplitTests/UATest1',
                         'SplitTests/SEOTests/SEOTest1',
                         'SplitTests/FETests/FETest1',
-                        'SplitTests/BillingTests/BillingTest1', # This test will not run because it's not compatible with .
-                                                                # 'SplitTests/SEOTests/SEOTest1' and 'SplitTests/BillingTests/BillingTest1'.
+                        'SplitTests/BillingTests/BillingTest1', # This test will not run because it's not compatible with:
+                                                                #
+                                                                # 'SplitTests/SEOTests/SEOTest1' and 
+                                                                # 'SplitTests/BillingTests/BillingTest1'.
+                                                                #
                                                                 # Please, take a look at SplitTests/BillingTests/BillingTest1.php class.
                     ])
                     ->get(true);
