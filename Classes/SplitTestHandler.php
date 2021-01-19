@@ -69,6 +69,7 @@ final class SplitTestHandler
      *
      * @param array $payload
      * @return void
+     * @throws Exception If $payload is empty.
      */
     private function setPayload( $payload = [] )
     {
@@ -86,20 +87,12 @@ final class SplitTestHandler
 
 
     /**
-     * This is a wrapper for method run() from each Test instance, also, it validates
-     * if current test is not compatible with loaded tests.
+     * This is a wrapper for method run() from each Test instance.
      *
      * @return  void
      */
     private function perform()
     {
-        if( !empty( array_intersect( $this->current_test->getIncompatibleTests(), $this->loaded_tests ) ) ){
-            throw new Exception('Test incompatibility "' . $this->current_path_test . '" with ' 
-                                . '["' . implode( '", "', $this->current_test->getIncompatibleTests()) . '"]');
-
-            return;
-        }
-
         $this->current_test->run();
     }
 
@@ -116,10 +109,31 @@ final class SplitTestHandler
         $this->current_file_ext = $ext;
         $test_name = $this->loadFile( $test . '.' . $ext );
 
-        if( $test_name !== NULL && is_string( $test_name ) ) 
+        if( $test_name !== NULL && is_string( $test_name ) ) {
             $this->current_test = new $test_name( $this->payload );
+            $this->checkIncompatibility();
+        }
 
         return $this;
+    }
+
+
+    /**
+     * Checks the incompatibility of the current test against loaded tests.
+     *
+     * @return void
+     * @throws Exception If there is at least one test loaded incompatible with current test.
+     */
+    private function checkIncompatibility()
+    {
+        if( !empty( array_intersect( $this->current_test->getIncompatibleTests(), $this->loaded_tests ) ) ){
+            throw new Exception(
+                                'Test incompatibility of "' . $this->current_path_test 
+                                . '" with ["' 
+                                    . implode( '", "', $this->current_test->getIncompatibleTests()) 
+                                . '"]'
+                            );
+        }
     }
 
 
@@ -128,11 +142,12 @@ final class SplitTestHandler
      * 
      * PHP include & require exposes the current context to the included file.
      * 
-     * Ref: https://github.com/Respect/Loader/issues/6
-     *      https://owasp.org/www-community/vulnerabilities/PHP_Object_Injection
+     * @link https://github.com/Respect/Loader/issues/6
+     * @link https://owasp.org/www-community/vulnerabilities/PHP_Object_Injection
      *
      * @param string $file
      * @return mixed
+     * @throws Exception If $file does not exist or class couldn't being loaded.
      */
     private function loadFile( $file )
     {
@@ -190,8 +205,9 @@ final class SplitTestHandler
      * Validates if array $data is empty, if so, it trows an exception and exits.
      *
      * @param array $data
-     * @param string $dmsg
+     * @param string $msg
      * @return void
+     * @throws Exception If array $data is empty.
      */
     private function ifEmptyThenExit( $data = [], $msg = 'Data is empty.' )
     {

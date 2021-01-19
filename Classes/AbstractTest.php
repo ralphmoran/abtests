@@ -4,12 +4,73 @@ namespace Classes;
 
 abstract class AbstractTest
 {
+    /**
+     * Payload can be any key-value array where, or not, the control variable exists.
+     * 
+     * ```
+     * $this->payload = [
+     * 'username'   => 'ctest',
+     * 'email'      => 'ctest_rb_3@f4f1click.com',
+     * 'sitekey'    => 'flirt4free',
+     * 'UDF09'      => '', # <- Control variable
+     * ];
+     * ```
+     *
+     * @var array
+     */
+    protected $payload = [];
 
-    protected $payload              = [];
-    protected $sample               = 100;
-    protected $group_sample         = 0;
-    protected $control              = '';
+    /**
+     * Traffic sample. By default, it's 100%. 
+     * 
+     * It'll change by method:
+     * 
+     * ```
+     * $this->sample(50); # It means 50% out of general traffic.
+     * ```
+     *
+     * @var integer
+     */
+    protected $sample = 100;
+
+    /**
+     * Final value that represents which group or bucket this test fell into.
+     *
+     * @var integer
+     */
+    protected $group_sample = 0;
+    
+    /**
+     * Control variable name. It's the label to be looked for or added, if not exists, to the payload.
+     * 
+     * Esample:
+     * 
+     * - UDF03, 
+     * - UDF09, 
+     * - UDF01...
+     * 
+     * If control variable is not asigned, a new one will be created, like:
+     * 
+     * ```
+     * get_called_class() . '_control'
+     * ```
+     * 
+     * @var string
+     */
+    protected $control = '';
+
+    /**
+     * This control value is set when A, B, ...N group, per its percentage, has been selected.
+     * 
+     * ```
+     * $this->groups( [ 'billingA' => 25, 'billingB'  => 75, ... ] );
+     * ```
+     *
+     * @var string
+     */
     protected $control_value        = '';
+
+
     protected $current_index        = '';
     protected $current_index_value  = '';
     protected $rule_statements      = [];
