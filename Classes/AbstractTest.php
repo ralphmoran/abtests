@@ -70,13 +70,29 @@ abstract class AbstractTest
      */
     protected $control_value        = '';
 
-
+    /**
+     * Undocumented variable
+     *
+     * @var string
+     */
     protected $current_index        = '';
+
+    /**
+     * Undocumented variable
+     *
+     * @var string
+     */
     protected $current_index_value  = '';
     protected $rule_statements      = [];
     protected $statement_pointer    = 0;
     protected $run_test             = true;
     protected $active               = true;
+
+    /**
+     * Array of all incompatible tests where the current test is not going to be able to run with.
+     *
+     * @var array
+     */
     protected $incompatibleWith     = [];
 
 
