@@ -68,25 +68,49 @@ abstract class AbstractTest
      *
      * @var string
      */
-    protected $control_value        = '';
+    protected $control_value = '';
 
     /**
-     * Undocumented variable
+     * Index/control name from payload that needs to be updated.
      *
      * @var string
      */
-    protected $current_index        = '';
+    protected $current_index = '';
 
     /**
-     * Undocumented variable
+     * Final value for control.
      *
      * @var string
      */
-    protected $current_index_value  = '';
-    protected $rule_statements      = [];
-    protected $statement_pointer    = 0;
-    protected $run_test             = true;
-    protected $active               = true;
+    protected $current_index_value = '';
+
+    /**
+     * Arrary of conditions from rules.
+     *
+     * @var array
+     */
+    protected $rule_statements = [];
+
+    /**
+     * Index of the status rule.
+     *
+     * @var integer
+     */
+    protected $statement_pointer = 0;
+
+    /**
+     * Flag to run a test.
+     *
+     * @var boolean
+     */
+    protected $run_test = true;
+
+    /**
+     * Defines if this test is active.
+     *
+     * @var boolean
+     */
+    protected $active = true;
 
     /**
      * Array of all incompatible tests where the current test is not going to be able to run with.

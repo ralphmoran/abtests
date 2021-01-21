@@ -11,14 +11,43 @@ final class SplitTestHandler
 {
     use Logger;
 
-    const _PAYLOAD_ERROR_MSG_   = 'There are no values to work on: payload is empty.';
-    const _TEST_ERROR_MSG_      = 'There have not been set any test.';
+    const _PAYLOAD_ERROR_MSG_ = 'There are no values to work on: payload is empty.';
+    const _TEST_ERROR_MSG_ = 'There have not been set any test.';
 
-    private $payload            = [];
-    private $loaded_tests       = [];
+    /**
+     * An array where the control is in.
+     *
+     * @var array
+     */
+    private $payload = [];
+
+    /**
+     * List of loaded tests.
+     *
+     * @var array
+     */
+    private $loaded_tests = [];
+
+    /**
+     * Current working test.
+     *
+     * @var [type]
+     */
     private $current_test;
-    private $current_path_test  = '';
-    private $current_file_ext   = 'php';
+
+    /**
+     * Full file path for test.
+     *
+     * @var string
+     */
+    private $current_path_test = '';
+
+    /**
+     * File extension.
+     *
+     * @var string
+     */
+    private $current_file_ext = 'php';
 
 
     /**
