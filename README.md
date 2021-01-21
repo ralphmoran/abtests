@@ -1,4 +1,4 @@
-## AB Tests
+# AB Tests package
 It handles and dispatches AB tests.
 
 ```php
@@ -75,7 +75,7 @@ class UATest1 extends AbstractTest
 
 ```
 
-### Incompatibility test
+### Incompatibility AB test
 
 ```php
 <?php
