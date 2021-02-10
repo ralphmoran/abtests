@@ -1,4 +1,4 @@
-## AB Tests
+# AB Tests package
 It handles and dispatches AB tests.
 
 ```php
@@ -13,7 +13,7 @@ $ABTestHandler = new SplitTestHandler();
 
 $ABTestHandler->payload([
                         'username'  => 'ctest',
-                        'email'     => 'ctest_rb_3@f4f1click.com',
+                        'email'     => 'ctest_rb_3@domain.com',
                         'sitekey'   => 'flirt4free',
                     ])
                     ->handle([
@@ -75,7 +75,7 @@ class UATest1 extends AbstractTest
 
 ```
 
-### Incompatibility test
+### Incompatibility AB test
 
 ```php
 <?php
@@ -109,7 +109,7 @@ class BillingTest1 extends AbstractTest
                 [
                     $this->dataFrom( 'email' )
                         ->has( '_hbp_' )
-                        ->has( '@f4f1click.com' ),
+                        ->has( '@domain.com' ),
 
                     $this->dataFrom( 'sitekey' )
                         ->equalTo( 'flirt4free' ),
