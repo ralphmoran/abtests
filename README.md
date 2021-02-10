@@ -27,7 +27,7 @@ $ABTestHandler->payload([
                                                                 #
                                                                 # Please, take a look at SplitTests/BillingTests/BillingTest1.php class.
                     ])
-                    ->get(true);
+                    ->getLog(true);
 ```
 
 ## Each AB test must have the next structure:
