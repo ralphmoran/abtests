@@ -4,11 +4,7 @@ use Classes\AbstractTest;
 
 class BillingTest1 extends AbstractTest
 {
-<<<<<<< HEAD
-    protected $incompatibleWith = [     # This test will not run if these tests have been called.
-=======
     protected $incompatibleWith = [     # This test will not run if these tests have been called/loaded.
->>>>>>> dev
         'SplitTests/SEOTests/SEOTest1',
         'SplitTests/FETests/FETest1',
     ];
