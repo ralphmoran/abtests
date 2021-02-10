@@ -80,7 +80,7 @@ final class SplitTestHandler
                 $this->loadTest( $test )
                         ->perform();
             } catch (Exception $e){
-                $this::$log['errors'][]  = [
+                $this->log['errors'][]  = [
                     'type'      => 'TEST',
                     'method'    => __METHOD__,
                     'message'   => $e->getMessage(),
@@ -106,7 +106,7 @@ final class SplitTestHandler
             $this->ifEmptyThenExit( $payload, SplitTestHandler::_PAYLOAD_ERROR_MSG_ );
             $this->payload = $payload;
         } catch (Exception $e){
-            $this::$log['errors'][]  = [
+            $this->log['errors'][]  = [
                 'type'      => 'PAYLOAD',
                 'method'    => __METHOD__,
                 'message'   => $e->getMessage(),
@@ -130,13 +130,11 @@ final class SplitTestHandler
      * Loads a test class from a file path.
      *
      * @param string $test
-     * @param string $ext
      * @return mixed
      */
-    private function loadTest( $test, $ext = 'php' )
+    private function loadTest( $test )
     {
-        $this->current_file_ext = $ext;
-        $test_name = $this->loadFile( $test . '.' . $ext );
+        $test_name = $this->loadFile( $test . '.' . $this->current_file_ext );
 
         if( $test_name !== NULL && is_string( $test_name ) ) {
             $this->current_test = new $test_name( $this->payload );
@@ -191,7 +189,6 @@ final class SplitTestHandler
                 if( !file_exists( $file ) ){
                     throw new Exception('File: ' . $file . '.php does not exist.');
                     ob_end_clean();
-
                     return NULL;
                 }
 
@@ -203,7 +200,6 @@ final class SplitTestHandler
             # Confirm if the class has been loaded from the $file
             if( !class_exists( $test_name ) ){
                 throw new Exception('Test: ' . $test_name . ' does not exist.');
-
                 return NULL;
             }
 
@@ -223,10 +219,9 @@ final class SplitTestHandler
      */
     private function getTestName( $file, $ext = 'php' ) : string
     {
-        $test_name      = explode( '/', $file );
-        $test_name      = end( $test_name );
+        $test_name = explode( '/', $file );
 
-        return rtrim( $test_name, '.' . $ext );
+        return rtrim( end( $test_name ), '.' . $ext );
     }
 
 

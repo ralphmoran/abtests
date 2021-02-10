@@ -4,20 +4,17 @@ namespace Traits;
 
 trait Logger {
 
-    public static $log = [];
+    protected $log = [];
 
     /**
      * Retrieves a specific property|log.
      *
      * @param   string  $meta
-     * @return  void
+     * @return  array|string
      */
-    public function get( $verbose = false )
+    public function getLog( $verbose = false )
     {
-        if ($verbose)
-            print_r(static::$log);
-        else 
-            return static::$log;
+        return ($verbose) ? print_r($this->log) : $this->log;
     }
 
 }
